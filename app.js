@@ -24,7 +24,7 @@ const $$ = (s) => [...document.querySelectorAll(s)];
 const pills = (items) => '<div class="pill-row">'+items.map(x=>'<span>'+x+'</span>').join('')+'</div>';
 function renderProducts(filter='all') {
  const list=products.filter(p=>filter==='all'||p.categories.includes(filter));
- $('#product-grid').innerHTML=list.map(p=>`<button class="product" data-open-product="${p.id}" aria-label="Explore ${p.name}"><div class="product-image"><img src="assets/${p.image}.webp" alt="${p.name} featured in the Santo Rubber Group company profiles" loading="lazy"><span class="product-num">0${products.indexOf(p)+1}</span></div><div class="product-copy"><h3>${p.name}</h3><p>${p.summary}</p><span class="product-more">Explore capability <b aria-hidden="true">+</b></span></div></button>`).join('');
+ $('#product-grid').innerHTML=list.map(p=>`<button class="product" data-open-product="${p.id}" aria-label="Explore ${p.name}"><div class="product-image"><img src="/assets/${p.image}.webp" alt="${p.name} featured in the Santo Rubber Group company profiles" loading="lazy"><span class="product-num">0${products.indexOf(p)+1}</span></div><div class="product-copy"><h3>${p.name}</h3><p>${p.summary}</p><span class="product-more">Explore capability <b aria-hidden="true">+</b></span></div></button>`).join('');
  $$('.filters button').forEach(b=>{let active=b.dataset.filter===filter;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
  $('#product-count').textContent=`Showing ${list.length} of ${products.length} capabilities`;
 }
@@ -38,13 +38,13 @@ function renderFacility(index=0) {
  const f=facilities[index];
  $$('.facility-tabs button').forEach(b=>{let active=Number(b.dataset.facility)===index;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;});
  $('#facility-panel').setAttribute('aria-labelledby','facility-'+index);
- $('#facility-panel').innerHTML=`<img src="assets/${f.image}.webp" alt="${f.name} exterior" loading="lazy"><div><div class="eyebrow">${f.name.toUpperCase()} / ${f.location}</div><h3>${f.title}</h3><p>${f.description}</p>${pills(f.tags)}</div>`;
+ $('#facility-panel').innerHTML=`<img src="/assets/${f.image}.webp" alt="${f.name} exterior" loading="lazy"><div><div class="eyebrow">${f.name.toUpperCase()} / ${f.location}</div><h3>${f.title}</h3><p>${f.description}</p>${pills(f.tags)}</div>`;
 }
 let dialogTrigger=null;
 function openProduct(id,trigger) {
  const p=products.find(p=>p.id===id);if(!p)return;
  dialogTrigger=trigger;
- $('#dialog-content').innerHTML=`<img class="dialog-image" src="assets/${p.image}.webp" alt="${p.name}"><div class="dialog-body"><div class="eyebrow">SANTO RUBBER GROUP / CAPABILITIES</div><h2 id="dialog-title">${p.name}</h2><p>${p.description}</p><h3>Products & applications</h3>${pills(p.examples)}<div class="actions"><button class="button" data-inquire="${p.id}">Discuss this product</button><a class="text-link dark" href="assets/${p.id==='footwear'?'pt-sol-profile.pdf':'santo-rubber-group-profile.pdf'}" target="_blank" rel="noopener">View company profile</a></div></div>`;
+ $('#dialog-content').innerHTML=`<img class="dialog-image" src="/assets/${p.image}.webp" alt="${p.name}"><div class="dialog-body"><div class="eyebrow">SANTO RUBBER GROUP / CAPABILITIES</div><h2 id="dialog-title">${p.name}</h2><p>${p.description}</p><h3>Products & applications</h3>${pills(p.examples)}<div class="actions"><button class="button" data-inquire="${p.id}">Discuss this product</button><a class="text-link dark" href="/assets/${p.id==='footwear'?'pt-sol-profile.pdf':'santo-rubber-group-profile.pdf'}" target="_blank" rel="noopener">View company profile</a></div></div>`;
  $('#product-dialog').showModal();
 }
 function closeDialog(){ $('#product-dialog').close(); }
