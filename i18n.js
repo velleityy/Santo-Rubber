@@ -17,6 +17,7 @@
      const trimmed=original.trim();
      const value=translate(trimmed);
      if(value!==trimmed){
+       if(node.parentElement.tagName==='OPTION'){node.parentElement.dataset.english=trimmed;node.parentElement.value=trimmed;}
        textKeys.set(node,original);
        const prefix=original.match(/^\s*/)[0],suffix=original.match(/\s*$/)[0];
        node.nodeValue=prefix+value+suffix;
