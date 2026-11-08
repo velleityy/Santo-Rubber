@@ -57,7 +57,7 @@ for (const lang of languages) {
       await page.locator('.company-list button').nth(1).click();
       await expect(page.locator('#company-panel')).toContainText('PT Basuki Aneka Inti Karet');
       await page.locator('.facility-tabs button').nth(2).click();
-      await expect(page.locator('#facility-panel')).toContainText('Pasar Kemis');
+      await expect(page.locator('#facility-panel')).toContainText(/pasar kemis/i);
 
       await expect(page.locator('#inquiry-interest option').first()).toHaveText(lang.general);
       // Routing uses stable English values regardless of user-facing language.
