@@ -3,10 +3,10 @@ const { defineConfig } = require('@playwright/test');
 module.exports = defineConfig({
   testDir: __dirname,
   testMatch: /site\.spec\.cjs$/,
-  timeout: 30000,
-  expect: { timeout: 6000 },
-  retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 2 : undefined,
+  timeout: 18000,
+  expect: { timeout: 4500 },
+  retries: 0,
+  workers: process.env.CI ? 4 : undefined,
   reporter: [['list'], ['html', { outputFolder: 'playwright-report', open: 'never' }]],
   outputDir: 'test-results',
   use: {
