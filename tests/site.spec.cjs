@@ -46,6 +46,22 @@ for (const lang of languages) {
         await expect(page.locator('#navigation a').first()).toContainText(lang.nav);
       }
 
+      // Load and check every company/product photo, including lazy images on translated routes.
+      for (const img of await page.locator('img').all()) {
+        await img.scrollIntoViewIfNeeded();
+        await img.evaluate(async el => {
+          if (!el.complete) await new Promise(resolve => {
+            el.addEventListener('load', resolve, { once: true });
+            el.addEventListener('error', resolve, { once: true });
+            setTimeout(resolve, 5000);
+          });
+        });
+      }
+      const brokenImages = await page.locator('img').evaluateAll(imgs =>
+        imgs.filter(img => img.naturalWidth === 0).map(img => img.currentSrc || img.src)
+      );
+      expect(brokenImages, 'missing images on ' + lang.code + ' / ' + size.name).toEqual([]);
+
       await expect(page.locator('#product-grid .product')).toHaveCount(6);
       await expect(page.locator('#product-grid .product').first()).toContainText(lang.product);
       await page.locator('#product-grid .product').first().click();
