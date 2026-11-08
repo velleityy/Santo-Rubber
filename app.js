@@ -19,32 +19,43 @@ const facilities = [
  {name:'Pasar Kemis Plant',location:'TANGERANG',image:'pasarkemis',title:'A new role for recovered rubber.',description:'Focused on rubber recycling, with powder and granules for reuse in Grade-C compounds and applications such as jogging tracks, futsal fields and playground surfaces.',tags:['Recycling','Powder','Granules']},
  {name:'Rajeg Plant',location:'TANGERANG',image:'rajeg',title:'Footwear and protection.',description:'Specialized in shoe and sandal outsoles, alongside rubber tiles and fenders for surface applications, protection and impact absorption.',tags:['Footwear','Tiles','Fenders']}
 ];
+
+// Language-aware labels and inquiry feedback; product IDs and routing values stay in English.
+const siteLang = window.santoI18n?.lang || 'en';
+const tr = (value) => window.santoI18n?.translate(value) || value;
+const uiMessages = {
+ en: {count:(shown,total)=>`Showing ${shown} of ${total} capabilities`,whatsapp:'Your message is ready in WhatsApp. Review it and press Send there.',email:to=>'Your email draft to '+to+' is ready. Review and send it from your email app.',copied:'Inquiry copied. Paste it into your email.',manual:'Select and copy the prepared inquiry below.',hello:'Hello Santo Rubber Group,',discuss:'I would like to discuss:',name:'Name:',company:'Company:',emailLabel:'Email:',details:'Project details:',thanks:'Thank you.',unspecified:'Not specified',subject:'Product inquiry — '},
+ id: {count:(shown,total)=>`Menampilkan ${shown} dari ${total} kapabilitas`,whatsapp:'Pesan Anda sudah disiapkan di WhatsApp. Periksa lalu tekan Kirim.',email:to=>'Draf email ke '+to+' sudah siap. Periksa dan kirim melalui aplikasi email Anda.',copied:'Pesan berhasil disalin. Tempelkan ke email Anda.',manual:'Pilih dan salin pesan yang telah disiapkan di bawah.',hello:'Halo Santo Rubber Group,',discuss:'Saya ingin membahas:',name:'Nama:',company:'Perusahaan:',emailLabel:'Email:',details:'Detail proyek:',thanks:'Terima kasih.',unspecified:'Tidak disebutkan',subject:'Permintaan produk — '},
+ zh: {count:(shown,total)=>`显示 ${shown} / ${total} 项制造能力`,whatsapp:'咨询内容已在 WhatsApp 中准备好，请核对并点击发送。',email:to=>'已为 '+to+' 准备好邮件草稿，请核对后通过邮件应用发送。',copied:'咨询内容已复制，可粘贴到邮件中。',manual:'请选择并复制下方准备好的咨询内容。',hello:'Santo Rubber Group 您好：',discuss:'我想咨询：',name:'姓名：',company:'公司：',emailLabel:'邮箱：',details:'项目详情：',thanks:'谢谢！',unspecified:'未填写',subject:'产品咨询 — '}
+};
+const msg=uiMessages[siteLang]||uiMessages.en;
+
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => [...document.querySelectorAll(s)];
 const pills = (items) => '<div class="pill-row">'+items.map(x=>'<span>'+x+'</span>').join('')+'</div>';
 function renderProducts(filter='all') {
  const list=products.filter(p=>filter==='all'||p.categories.includes(filter));
- $('#product-grid').innerHTML=list.map(p=>`<button class="product" data-open-product="${p.id}" aria-label="Explore ${p.name}"><div class="product-image"><img src="assets/${p.image}.webp" alt="${p.name} featured in the Santo Rubber Group company profiles" loading="lazy"><span class="product-num">0${products.indexOf(p)+1}</span></div><div class="product-copy"><h3>${p.name}</h3><p>${p.summary}</p><span class="product-more">Explore capability <b aria-hidden="true">+</b></span></div></button>`).join('');
+ $('#product-grid').innerHTML=list.map(p=>`<button class="product" data-open-product="${p.id}" aria-label="${tr('Explore capability')}: ${tr(p.name)}"><div class="product-image"><img src="/assets/${p.image}.webp" alt="${p.name} featured in the Santo Rubber Group company profiles" loading="lazy"><span class="product-num">0${products.indexOf(p)+1}</span></div><div class="product-copy"><h3>${tr(p.name)}</h3><p>${tr(p.summary)}</p><span class="product-more">${tr('Explore capability')} <b aria-hidden="true">+</b></span></div></button>`).join('');
  $$('.filters button').forEach(b=>{let active=b.dataset.filter===filter;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
- $('#product-count').textContent=`Showing ${list.length} of ${products.length} capabilities`;
+ $('#product-count').textContent=msg.count(list.length,products.length);
 }
 function renderCompany(key='srf') {
  const c=companies[key];
  $$('.company-list button').forEach(b=>{let active=b.dataset.company===key;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;b.querySelector('b').textContent=active?'−':'+';});
  $('#company-panel').setAttribute('aria-labelledby','company-'+key);
- $('#company-panel').innerHTML=`<div class="company-abbr">${c.abbr}</div><h3>${c.name}</h3><p>${c.description}</p>${pills(c.tags)}<a class="text-link dark" href="${c.link}" ${c.filter?'data-group-filter="'+c.filter+'"':'target="_blank" rel="noopener"'}>${c.label}</a>`;
+ $('#company-panel').innerHTML=`<div class="company-abbr">${c.abbr}</div><h3>${c.name}</h3><p>${tr(c.description)}</p>${pills(c.tags.map(tr))}<a class="text-link dark" href="${c.link}" ${c.filter?'data-group-filter="'+c.filter+'"':'target="_blank" rel="noopener"'}>${tr(c.label)}</a>`;
 }
 function renderFacility(index=0) {
  const f=facilities[index];
  $$('.facility-tabs button').forEach(b=>{let active=Number(b.dataset.facility)===index;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;});
  $('#facility-panel').setAttribute('aria-labelledby','facility-'+index);
- $('#facility-panel').innerHTML=`<img src="assets/${f.image}.webp" alt="${f.name} exterior" loading="lazy"><div><div class="eyebrow">${f.name.toUpperCase()} / ${f.location}</div><h3>${f.title}</h3><p>${f.description}</p>${pills(f.tags)}</div>`;
+ $('#facility-panel').innerHTML=`<img src="/assets/${f.image}.webp" alt="${f.name} exterior" loading="lazy"><div><div class="eyebrow">${f.name.toUpperCase()} / ${f.location}</div><h3>${tr(f.title)}</h3><p>${tr(f.description)}</p>${pills(f.tags.map(tr))}</div>`;
 }
 let dialogTrigger=null;
 function openProduct(id,trigger) {
  const p=products.find(p=>p.id===id);if(!p)return;
  dialogTrigger=trigger;
- $('#dialog-content').innerHTML=`<img class="dialog-image" src="assets/${p.image}.webp" alt="${p.name}"><div class="dialog-body"><div class="eyebrow">SANTO RUBBER GROUP / CAPABILITIES</div><h2 id="dialog-title">${p.name}</h2><p>${p.description}</p><h3>Products & applications</h3>${pills(p.examples)}<div class="actions"><button class="button" data-inquire="${p.id}">Discuss this product</button><a class="text-link dark" href="assets/${p.id==='footwear'?'pt-sol-profile.pdf':'santo-rubber-group-profile.pdf'}" target="_blank" rel="noopener">View company profile</a></div></div>`;
+ $('#dialog-content').innerHTML=`<img class="dialog-image" src="/assets/${p.image}.webp" alt="${p.name}"><div class="dialog-body"><div class="eyebrow">${tr('SANTO RUBBER GROUP / CAPABILITIES')}</div><h2 id="dialog-title">${tr(p.name)}</h2><p>${tr(p.description)}</p><h3>${tr('Products & applications')}</h3>${pills(p.examples.map(tr))}<div class="actions"><button class="button" data-inquire="${p.id}">${tr('Discuss this product')}</button><a class="text-link dark" href="/assets/${p.id==='footwear'?'pt-sol-profile.pdf':'santo-rubber-group-profile.pdf'}" target="_blank" rel="noopener">${tr('View company profile')}</a></div></div>`;
  $('#product-dialog').showModal();
 }
 function closeDialog(){ $('#product-dialog').close(); }
@@ -72,20 +83,20 @@ let preparedMessage='';
 $('#inquiry-form').addEventListener('submit',e=>{
  e.preventDefault();const form=e.currentTarget;if(!form.reportValidity())return;
  const data=new FormData(form);const interest=data.get('interest');
- preparedMessage=`Hello Santo Rubber Group,\n\nI would like to discuss: ${interest}.\n\nName: ${data.get('name')}\nCompany: ${data.get('company')||'Not specified'}\nEmail: ${data.get('email')}\n\nProject details:\n${data.get('message')}\n\nThank you.`;
+ preparedMessage=`${msg.hello}\n\n${msg.discuss} ${tr(String(interest))}.\n\n${msg.name} ${data.get('name')}\n${msg.company} ${data.get('company')||msg.unspecified}\n${msg.emailLabel} ${data.get('email')}\n\n${msg.details}\n${data.get('message')}\n\n${msg.thanks}`;
  const channel=e.submitter?.value||'email';
  if(channel==='whatsapp'){
   const target=interest==='SIP Rubber products'?'628561117498':'6281807261518';
   window.open(`https://wa.me/${target}?text=${encodeURIComponent(preparedMessage)}`,'_blank','noopener,noreferrer');
-  $('#inquiry-status').textContent='Your message is ready in WhatsApp. Review it and press Send there.';$('#email-fallback').hidden=true;
+  $('#inquiry-status').textContent=msg.whatsapp;$('#email-fallback').hidden=true;
  }else{
   const to=interest==='Footwear outsoles & foxing'?'semesta.olahlestari@gmail.com':interest==='SIP Rubber products'?'sales@siprubber.com':'sales@industrikaret.com';
-  window.location.href=`mailto:${to}?subject=${encodeURIComponent('Product inquiry — '+interest)}&body=${encodeURIComponent(preparedMessage)}`;
-  $('#inquiry-status').textContent='Your email draft to '+to+' is ready. Review and send it from your email app.';$('#email-fallback').hidden=false;$('#prepared-inquiry').value=preparedMessage;
+  window.location.href=`mailto:${to}?subject=${encodeURIComponent(msg.subject+tr(String(interest)))}&body=${encodeURIComponent(preparedMessage)}`;
+  $('#inquiry-status').textContent=msg.email(to);$('#email-fallback').hidden=false;$('#prepared-inquiry').value=preparedMessage;
  }
 });
 $('#copy-inquiry').addEventListener('click',async()=>{
- try{await navigator.clipboard.writeText(preparedMessage);$('#inquiry-status').textContent='Inquiry copied. Paste it into your email.';}catch{const t=$('#prepared-inquiry');t.hidden=false;t.focus();t.select();$('#inquiry-status').textContent='Select and copy the prepared inquiry below.';}
+ try{await navigator.clipboard.writeText(preparedMessage);$('#inquiry-status').textContent=msg.copied;}catch{const t=$('#prepared-inquiry');t.hidden=false;t.focus();t.select();$('#inquiry-status').textContent=msg.manual;}
 });
 $('#year').textContent=new Date().getFullYear();
 renderProducts();renderCompany();renderFacility();

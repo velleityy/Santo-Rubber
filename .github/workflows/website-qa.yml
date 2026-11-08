@@ -1,0 +1,45 @@
+name: Multilingual website QA
+
+on:
+  pull_request:
+    paths:
+      - '**/*.html'
+      - '**/*.js'
+      - '**/*.css'
+      - 'assets/**'
+      - 'tests/**'
+      - '.github/workflows/website-qa.yml'
+  push:
+    branches:
+      - feature/multilingual-en-id-zh-20261108
+  workflow_dispatch:
+
+jobs:
+  browser-checks:
+    name: Desktop, tablet & phone browser checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install browser testing tools
+        run: |
+          npm install --no-save --package-lock=false @playwright/test@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Check all languages and layouts
+        run: npx playwright test --config tests/playwright.config.cjs
+      - name: Upload screenshots and test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: multilingual-website-qa
+          path: |
+            tests/screenshots/
+            tests/playwright-report/
+            tests/test-results/
+          if-no-files-found: ignore
+          retention-days: 14
