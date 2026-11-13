@@ -199,3 +199,20 @@ html[lang="id"] .hero h1{font-size:clamp(2.8rem,5.1vw,5.6rem)}
   }
   .facility-panel .facility-photo-frame{height:245px}
 }
+
+
+/* Direct inquiry form: accessible sending state, privacy disclosure and fallback. */
+.form-trap{position:absolute!important;left:-10000px!important;top:auto!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;pointer-events:none!important}
+.inquiry-notice,.inquiry-privacy{line-height:1.65}
+.inquiry-privacy{font-size:.78rem;color:var(--muted);max-width:60ch}
+.inquiry-privacy a{color:var(--blue);text-decoration:underline;text-underline-offset:3px}
+.inquiry-fallback-actions{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin:14px 0}
+#email-fallback{border-top:1px solid var(--line);padding-top:12px}
+#inquiry-status{min-height:1.3em;line-height:1.6;overflow-wrap:anywhere}
+#inquiry-form button[aria-busy="true"]{cursor:wait;opacity:.7}
+#inquiry-form button:disabled{pointer-events:none}
+@media(max-width:540px){
+ .form-actions{gap:10px}
+ .form-actions .button{width:100%;text-align:center}
+ .inquiry-fallback-actions{gap:14px}
+}
