@@ -1,0 +1,39 @@
+name: Clean up merged Santo Rubber branches
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  delete-merged-branches:
+    if: github.event.pull_request.number == 3 && github.event.pull_request.merged == true
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Delete only the three known merged branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for branch in \
+            feature/multilingual-en-id-zh-20261108 \
+            feature/product-imagery-layout-polish-20261108 \
+            chore/update-contact-info-santorubber-20261113
+          do
+            echo "Checking $branch"
+            if ! gh api "repos/$REPOSITORY/branches/$branch" >/dev/null 2>&1; then
+              echo "Already deleted or not accessible: $branch"
+              continue
+            fi
+            # A merged branch head must be an ancestor of main (no missing commits).
+            behind=$(gh api "repos/$REPOSITORY/compare/${branch}...main" --jq .behind_by)
+            if [ "$behind" != "0" ]; then
+              echo "Keeping $branch: it contains unmerged work ($behind commits)"
+              continue
+            fi
+            gh api -X DELETE "repos/$REPOSITORY/git/refs/heads/$branch"
+            echo "Deleted merged branch $branch"
+          done
