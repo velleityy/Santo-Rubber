@@ -64,6 +64,17 @@ for (const lang of languages) {
 
       await expect(page.locator('#product-grid .product')).toHaveCount(6);
       await expect(page.locator('#product-grid .product').first()).toContainText(lang.product);
+      // Original profile photos are low-resolution; rendering must not enlarge them.
+      const recycledImg = page.locator('#product-grid [data-open-product="recycled"] .native-photo-recycling');
+      const recycledDimensions = await recycledImg.evaluate(el => ({
+        rendered: el.getBoundingClientRect().width, natural: el.naturalWidth
+      }));
+      expect(recycledDimensions.natural).toBeGreaterThan(0);
+      expect(recycledDimensions.rendered).toBeLessThanOrEqual(recycledDimensions.natural + 2);
+      const tileDimensions = await page.locator('.native-photo-tiles').evaluate(el => ({
+        rendered: el.getBoundingClientRect().width, natural: el.naturalWidth
+      }));
+      expect(tileDimensions.rendered).toBeLessThanOrEqual(tileDimensions.natural + 2);
       await page.locator('#product-grid .product').first().click();
       await expect(page.locator('#product-dialog')).toBeVisible();
       await expect(page.locator('#dialog-title')).toContainText(lang.product);
@@ -72,16 +83,35 @@ for (const lang of languages) {
 
       for (const key of ['srf', 'baik', 'sol', 'sip']) {
         const tabLogo = page.locator('#company-' + key + ' .company-tab-logo');
-        await expect(tabLogo).toHaveAttribute('src', '/assets/logos/' + key + '.webp');
-        await expect.poll(() => tabLogo.evaluate(img => img.complete ? img.naturalWidth : 0)).toBeGreaterThan(0);
+        await expect(tabLogo).toHaveAttribute('role', 'img');
+        const frame = await tabLogo.evaluate(el => ({
+          width: el.getBoundingClientRect().width,
+          height: el.getBoundingClientRect().height,
+          background: getComputedStyle(el).backgroundImage
+        }));
+        expect(frame.background).toContain('/assets/logos/' + key + '.webp');
+        expect(frame.width, key + ' logo should never expand into the company text').toBeGreaterThanOrEqual(44);
+        expect(frame.width, key + ' logo should remain a thumbnail').toBeLessThanOrEqual(90);
+        expect(frame.height, key + ' logo should remain contained').toBeLessThanOrEqual(60);
       }
       await page.locator('.company-list button').nth(1).click();
       await expect(page.locator('#company-panel')).toContainText('PT Basuki Aneka Inti Karet');
       const companyLogo = page.locator('#company-panel .company-panel-logo');
-      await expect(companyLogo).toHaveAttribute('src', '/assets/logos/baik.webp');
-      await expect.poll(() => companyLogo.evaluate(img => img.complete ? img.naturalWidth : 0)).toBeGreaterThan(0);
+      const panelFrame = await companyLogo.evaluate(el => ({
+        width: el.getBoundingClientRect().width,
+        height: el.getBoundingClientRect().height,
+        background: getComputedStyle(el).backgroundImage
+      }));
+      expect(panelFrame.background).toContain('/assets/logos/baik.webp');
+      expect(panelFrame.width).toBeLessThanOrEqual(180);
+      expect(panelFrame.height).toBeLessThanOrEqual(92);
       await page.locator('.facility-tabs button').nth(2).click();
       await expect(page.locator('#facility-panel')).toContainText(/pasar kemis/i);
+      const facilityImage = await page.locator('#facility-panel img.facility-photo-original').evaluate(el => ({
+        rendered: el.getBoundingClientRect().width, natural: el.naturalWidth
+      }));
+      expect(facilityImage.natural).toBeGreaterThan(0);
+      expect(facilityImage.rendered).toBeLessThanOrEqual(facilityImage.natural + 2);
 
       // Every language must expose the new central contact address.
       const centralEmail = page.locator('.contact-details a[href^="mailto:"]');
