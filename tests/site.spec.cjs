@@ -114,6 +114,14 @@ test('management-approved photos are committed before merging', async ({ request
   }
 });
 
+test('inquiry email drafts always target the new central mailbox', async () => {
+  const application = fs.readFileSync(require('node:path').join(__dirname, '..', 'app.js'), 'utf8');
+  expect(application).toContain("const to='info@santorubber.com';");
+  for (const oldEmail of ['sales@industrikaret.com', 'sales@siprubber.com', 'semesta.olahlestari@gmail.com']) {
+    expect(application).not.toContain(oldEmail);
+  }
+});
+
 test('language switcher preserves section when switching languages', async ({ page }) => {
   await page.goto('/#products');
   await page.locator('.language-switcher select').selectOption('id');
