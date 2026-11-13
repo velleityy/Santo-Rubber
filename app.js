@@ -54,6 +54,12 @@ const uiMessages = {
  id: {count:(shown,total)=>`Menampilkan ${shown} dari ${total} kapabilitas`,whatsapp:'Pesan Anda sudah disiapkan di WhatsApp. Periksa lalu tekan Kirim.',email:to=>'Draf email ke '+to+' sudah siap. Periksa dan kirim melalui aplikasi email Anda.',copied:'Pesan berhasil disalin. Tempelkan ke email Anda.',manual:'Pilih dan salin pesan yang telah disiapkan di bawah.',hello:'Halo Santo Rubber Group,',discuss:'Saya ingin membahas:',name:'Nama:',company:'Perusahaan:',emailLabel:'Email:',details:'Detail proyek:',thanks:'Terima kasih.',unspecified:'Tidak disebutkan',subject:'Permintaan produk — '},
  zh: {count:(shown,total)=>`显示 ${shown} / ${total} 项制造能力`,whatsapp:'咨询内容已在 WhatsApp 中准备好，请核对并点击发送。',email:to=>'已为 '+to+' 准备好邮件草稿，请核对后通过邮件应用发送。',copied:'咨询内容已复制，可粘贴到邮件中。',manual:'请选择并复制下方准备好的咨询内容。',hello:'Santo Rubber Group 您好：',discuss:'我想咨询：',name:'姓名：',company:'公司：',emailLabel:'邮箱：',details:'项目详情：',thanks:'谢谢！',unspecified:'未填写',subject:'产品咨询 — '}
 };
+const submitMessages={
+ en:{sending:'Sending your inquiry…',sent:'Your inquiry has been submitted for delivery. Our team will reply by email.',failed:'Unable to send directly. You can open an email draft or copy your inquiry instead.',copy:'Copy inquiry text'},
+ id:{sending:'Mengirim pertanyaan Anda…',sent:'Pertanyaan Anda telah diajukan untuk dikirimkan. Tim kami akan membalas melalui email.',failed:'Pesan belum berhasil dikirim. Anda dapat membuka draf email atau menyalin isi pesan.',copy:'Salin isi pesan'},
+ zh:{sending:'正在发送您的咨询…',sent:'您的咨询已提交等待邮件递送，我们的团队将通过邮件回复。',failed:'暂时无法直接发送。您可以打开邮件草稿或复制咨询内容。',copy:'复制咨询内容'}
+};
+const submitMsg=submitMessages[siteLang]||submitMessages.en;
 const msg=uiMessages[siteLang]||uiMessages.en;
 
 const $ = (s) => document.querySelector(s);
@@ -106,19 +112,70 @@ function closeMenu(){$('#navigation').classList.remove('open');$('.menu').setAtt
 $$('#navigation a').forEach(a=>a.addEventListener('click',closeMenu));
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#navigation').classList.contains('open')){closeMenu();$('.menu').focus();}});
 let preparedMessage='';
-$('#inquiry-form').addEventListener('submit',e=>{
- e.preventDefault();const form=e.currentTarget;if(!form.reportValidity())return;
- const data=new FormData(form);const interest=data.get('interest');
- preparedMessage=`${msg.hello}\n\n${msg.discuss} ${tr(String(interest))}.\n\n${msg.name} ${data.get('name')}\n${msg.company} ${data.get('company')||msg.unspecified}\n${msg.emailLabel} ${data.get('email')}\n\n${msg.details}\n${data.get('message')}\n\n${msg.thanks}`;
+// GitHub Pages is static: a third-party endpoint delivers the inquiry to the group's mailbox.
+// Delivery requires a one-time activation email confirmation at info@santorubber.com.
+let inquirySubmitting=false;
+$('#inquiry-form').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const form=e.currentTarget;
+ if(inquirySubmitting || !form.reportValidity())return;
+ const data=new FormData(form);
+ const interest=String(data.get('interest')||'General group inquiry');
+ const to='info@santorubber.com';
  const channel=e.submitter?.value||'email';
+ preparedMessage=`${msg.hello}\n\n${msg.discuss} ${tr(interest)}.\n\n${msg.name} ${data.get('name')}\n${msg.company} ${data.get('company')||msg.unspecified}\n${msg.emailLabel} ${data.get('email')}\n\n${msg.details}\n${data.get('message')}\n\n${msg.thanks}`;
+ $('#prepared-inquiry').value=preparedMessage;
  if(channel==='whatsapp'){
   const target=interest==='SIP Rubber products'?'628561117498':'6281807261518';
   window.open(`https://wa.me/${target}?text=${encodeURIComponent(preparedMessage)}`,'_blank','noopener,noreferrer');
-  $('#inquiry-status').textContent=msg.whatsapp;$('#email-fallback').hidden=true;
- }else{
-  const to='info@santorubber.com';
-  window.location.href=`mailto:${to}?subject=${encodeURIComponent(msg.subject+tr(String(interest)))}&body=${encodeURIComponent(preparedMessage)}`;
-  $('#inquiry-status').textContent=msg.email(to);$('#email-fallback').hidden=false;$('#prepared-inquiry').value=preparedMessage;
+  $('#inquiry-status').textContent=msg.whatsapp;
+  $('#email-fallback').hidden=true;
+  return;
+ }
+ // A hidden honeypot is a lightweight additional spam precaution.
+ if(String(data.get('_honey')||'').trim())return;
+ const button=form.querySelector('button[name="channel"][value="email"]');
+ inquirySubmitting=true;
+ button.disabled=true;
+ button.setAttribute('aria-busy','true');
+ $('#inquiry-status').textContent=submitMsg.sending;
+ $('#email-fallback').hidden=true;
+ const payload={
+  name:String(data.get('name')||'').trim(),
+  email:String(data.get('email')||'').trim(),
+  company:String(data.get('company')||'').trim(),
+  interest,
+  message:String(data.get('message')||'').trim(),
+  language:siteLang,
+  _subject:msg.subject+tr(interest),
+  _template:'table',
+  _url:location.href.split('#')[0],
+  _honey:''
+ };
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),15000);
+ try{
+  const response=await fetch('https://formsubmit.co/ajax/info@santorubber.com',{
+   method:'POST',
+   headers:{'Content-Type':'application/json','Accept':'application/json'},
+   body:JSON.stringify(payload),
+   signal:controller.signal
+  });
+  const result=await response.json();
+  if(!response.ok || (result.success!==true && result.success!=='true'))throw new Error('Form endpoint did not confirm acceptance');
+  $('#inquiry-status').textContent=submitMsg.sent;
+  form.reset();
+ }catch{
+  // Don't claim that an inquiry was delivered if the provider/network fails.
+  $('#inquiry-status').textContent=submitMsg.failed;
+  const draft=$('#email-draft');
+  draft.href=`mailto:${to}?subject=${encodeURIComponent(msg.subject+tr(interest))}&body=${encodeURIComponent(preparedMessage)}`;
+  $('#email-fallback').hidden=false;
+ }finally{
+  clearTimeout(timeout);
+  inquirySubmitting=false;
+  button.disabled=false;
+  button.removeAttribute('aria-busy');
  }
 });
 $('#copy-inquiry').addEventListener('click',async()=>{

@@ -161,12 +161,86 @@ test('official group-company logo files are served', async ({ request }) => {
   }
 });
 
-test('inquiry email drafts always target the new central mailbox', async () => {
+test('website inquiry uses the central mailbox and a direct submission endpoint', async () => {
   const application = fs.readFileSync(require('node:path').join(__dirname, '..', 'app.js'), 'utf8');
   expect(application).toContain("const to='info@santorubber.com';");
+  expect(application).toContain("https://formsubmit.co/ajax/info@santorubber.com");
+  expect(application).toContain("response.json()");
+  expect(application).toContain("msg.whatsapp");
   for (const oldEmail of ['sales@industrikaret.com', 'sales@siprubber.com', 'semesta.olahlestari@gmail.com']) {
     expect(application).not.toContain(oldEmail);
   }
+});
+
+test('SEO metadata and JSON-LD are correct on all three language routes', async ({ page, request }) => {
+  for (const loc of languages) {
+    await page.goto(loc.path);
+    const canonical = 'https://santorubber.com' + loc.path;
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', canonical);
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', canonical);
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', 'https://santorubber.com/assets/components.webp');
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /index,follow/);
+    await expect(page.locator('meta[property="og:locale"]')).toHaveAttribute('content', {en:'en_US',id:'id_ID',zh:'zh_CN'}[loc.code]);
+    const ld = await page.locator('script[type="application/ld+json"]').textContent();
+    const graph = JSON.parse(ld)['@graph'];
+    expect(graph.find(x => x['@type'] === 'Organization').email).toBe('info@santorubber.com');
+    expect(graph.find(x => x['@type'] === 'WebPage').url).toBe(canonical);
+    await expect(page.locator('#inquiry-form')).toHaveAttribute('action', 'https://formsubmit.co/info@santorubber.com');
+    await expect(page.locator('.inquiry-privacy a')).toHaveAttribute('href', 'https://formsubmit.co/privacy.pdf');
+  }
+  const image = await request.get('/assets/components.webp');
+  expect(image.status()).toBe(200);
+});
+
+for (const loc of languages) {
+  test(`${loc.code}: direct inquiry submission succeeds without opening the email app`, async ({ page }) => {
+    const requests = [];
+    await page.route('https://formsubmit.co/ajax/info@santorubber.com', async route => {
+      if (route.request().method() === 'OPTIONS') {
+        return route.fulfill({status:204, headers:{
+          'access-control-allow-origin':'*','access-control-allow-methods':'POST, OPTIONS',
+          'access-control-allow-headers':'content-type,accept'
+        }});
+      }
+      requests.push(JSON.parse(route.request().postData()));
+      return route.fulfill({status:200,contentType:'application/json',
+        headers:{'access-control-allow-origin':'*'},
+        body:JSON.stringify({success:'true', message:'Submitted'})});
+    });
+    await page.goto(loc.path);
+    await page.locator('#inquiry-form input[name="name"]').fill('Quality Buyer');
+    await page.locator('#inquiry-form input[name="email"]').fill('buyer@example.org');
+    await page.locator('#inquiry-form input[name="company"]').fill('Test Engineering');
+    await page.locator('#inquiry-interest').selectOption('Custom molded components');
+    await page.locator('#inquiry-form textarea[name="message"]').fill('Requesting a custom rubber part quotation');
+    await page.locator('#inquiry-form button[value="email"]').click();
+    await expect(page.locator('#inquiry-status')).toContainText({en:'submitted for delivery',id:'diajukan untuk dikirimkan',zh:'已提交'}[loc.code]);
+    expect(requests).toHaveLength(1);
+    expect(requests[0]).toMatchObject({
+      name:'Quality Buyer',email:'buyer@example.org',
+      company:'Test Engineering',interest:'Custom molded components',
+      language:loc.code
+    });
+    await expect(page.locator('#inquiry-form input[name="name"]')).toHaveValue('');
+    await expect(page.locator('#email-fallback')).toBeHidden();
+  });
+}
+
+test('inquiry service errors show the email fallback without losing the draft', async ({ page }) => {
+  await page.route('https://formsubmit.co/ajax/info@santorubber.com', async route =>
+    route.fulfill({status:503,contentType:'application/json',
+      headers:{'access-control-allow-origin':'*'},body:JSON.stringify({success:'false'})})
+  );
+  await page.goto('/');
+  await page.locator('#inquiry-form input[name="name"]').fill('Sample Buyer');
+  await page.locator('#inquiry-form input[name="email"]').fill('buyer@example.org');
+  await page.locator('#inquiry-form textarea[name="message"]').fill('Need a quote for rubber profiles');
+  await page.locator('#inquiry-form button[value="email"]').click();
+  await expect(page.locator('#inquiry-status')).toContainText('Unable to send directly');
+  await expect(page.locator('#email-fallback')).toBeVisible();
+  await expect(page.locator('#email-draft')).toHaveAttribute('href', /mailto:info@santorubber.com/);
+  await expect(page.locator('#prepared-inquiry')).toHaveValue(/Need a quote for rubber profiles/);
 });
 
 test('language switcher preserves section when switching languages', async ({ page }) => {
