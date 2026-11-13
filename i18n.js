@@ -47,14 +47,8 @@
    select.addEventListener('change',()=>{const url=select.value==='en'?'/':'/'+select.value+'/';location.href=url+location.hash;});
    const menu=nav.querySelector('.menu');nav.insertBefore(label,menu);
  }
- function localizedSEO(){
-   const data={en:['Santo Rubber Group — Rubber, engineered around you.','Indonesian rubber manufacturing since 1994. Explore compounds, industrial components, footwear, marine fenders and recycled rubber.'],id:['Santo Rubber Group — Solusi Manufaktur Karet Indonesia','Sejak 1994, Santo Rubber Group memproduksi kompon, komponen karet industri, sol sepatu, fender, dan produk karet daur ulang.'],zh:['Santo Rubber Group — 印尼专业橡胶制造集团','自1994年以来，Santo Rubber Group 提供橡胶混炼胶、工业橡胶件、鞋底、船用护舷及再生橡胶产品。']};
-   document.title=data[lang][0];
-   const desc=document.querySelector('meta[name="description"]');if(desc)desc.content=data[lang][1];
- }
  document.addEventListener('DOMContentLoaded',()=>{
    addSwitcher();
-   localizedSEO();
    localize(document.body);
    if(lang!=='en'){
      const observer=new MutationObserver(changes=>{
