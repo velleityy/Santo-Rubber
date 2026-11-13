@@ -3,37 +3,54 @@ name: Clean up merged Santo Rubber branches
 on:
   pull_request:
     types: [closed]
+  push:
+    branches: [main]
 
 jobs:
-  delete-merged-branches:
-    if: github.event.pull_request.number == 3 && github.event.pull_request.merged == true
+  cleanup:
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
-      - name: Delete only the three known merged branches
+      - name: Safely delete only merged branches
         env:
           GH_TOKEN: ${{ github.token }}
           REPOSITORY: ${{ github.repository }}
+          EVENT: ${{ github.event_name }}
+          PR_SOURCE_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          PR_SOURCE_BRANCH: ${{ github.event.pull_request.head.ref }}
         shell: bash
         run: |
           set -euo pipefail
-          for branch in \
-            feature/multilingual-en-id-zh-20261108 \
-            feature/product-imagery-layout-polish-20261108 \
-            chore/update-contact-info-santorubber-20261113
-          do
-            echo "Checking $branch"
+
+          branches=()
+          if [[ "$EVENT" == "push" ]]; then
+            # One-time cleanup of branches from already-merged PRs #4 and #5.
+            branches+=("fix/logo-scale-and-image-sharpness-20261113")
+            branches+=("feature/inquiry-form-seo-20261113")
+          elif [[ "$PR_SOURCE_REPOSITORY" == "$REPOSITORY" && -n "$PR_SOURCE_BRANCH" ]]; then
+            # For future merged PRs, remove the merged branch from this repository only.
+            branches+=("$PR_SOURCE_BRANCH")
+          fi
+
+          for branch in "${branches[@]}"; do
+            if [[ "$branch" == "main" || "$branch" == "master" ]]; then
+              echo "Keeping protected default branch $branch"
+              continue
+            fi
             if ! gh api "repos/$REPOSITORY/branches/$branch" >/dev/null 2>&1; then
-              echo "Already deleted or not accessible: $branch"
+              echo "Already deleted: $branch"
               continue
             fi
-            # A merged branch head must be an ancestor of main (no missing commits).
-            behind=$(gh api "repos/$REPOSITORY/compare/${branch}...main" --jq .behind_by)
-            if [ "$behind" != "0" ]; then
-              echo "Keeping $branch: it contains unmerged work ($behind commits)"
+
+            # Keep any branch whose head has commits that main does not contain.
+            behind=$(gh api "repos/$REPOSITORY/compare/${branch}...main" --jq '.behind_by')
+            if [[ "$behind" != "0" ]]; then
+              echo "Keeping $branch ($behind unmerged commits)"
               continue
             fi
+
             gh api -X DELETE "repos/$REPOSITORY/git/refs/heads/$branch"
-            echo "Deleted merged branch $branch"
+            echo "Deleted merged branch: $branch"
           done
