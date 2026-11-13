@@ -107,6 +107,7 @@ for (const lang of languages) {
       expect(panelFrame.height).toBeLessThanOrEqual(92);
       await page.locator('.facility-tabs button').nth(2).click();
       await expect(page.locator('#facility-panel')).toContainText(/pasar kemis/i);
+      await expect.poll(() => page.locator('#facility-panel img.facility-photo-original').evaluate(el => el.naturalWidth)).toBeGreaterThan(0);
       const facilityImage = await page.locator('#facility-panel img.facility-photo-original').evaluate(el => ({
         rendered: el.getBoundingClientRect().width, natural: el.naturalWidth
       }));
