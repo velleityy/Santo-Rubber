@@ -116,7 +116,7 @@ $('#inquiry-form').addEventListener('submit',e=>{
   window.open(`https://wa.me/${target}?text=${encodeURIComponent(preparedMessage)}`,'_blank','noopener,noreferrer');
   $('#inquiry-status').textContent=msg.whatsapp;$('#email-fallback').hidden=true;
  }else{
-  const to=interest==='Footwear outsoles & foxing'?'semesta.olahlestari@gmail.com':interest==='SIP Rubber products'?'sales@siprubber.com':'sales@industrikaret.com';
+  const to='info@santorubber.com';
   window.location.href=`mailto:${to}?subject=${encodeURIComponent(msg.subject+tr(String(interest)))}&body=${encodeURIComponent(preparedMessage)}`;
   $('#inquiry-status').textContent=msg.email(to);$('#email-fallback').hidden=false;$('#prepared-inquiry').value=preparedMessage;
  }
