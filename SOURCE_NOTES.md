@@ -8,7 +8,7 @@ Primary sources: the three user-provided files dated October 5, 2026.
 - Group profile p.1 brand mark names PT BAIK as PT Basuki Aneka Inti Karet. Page 12 attributes recycled rubber product examples to PT BAIK.
 - https://www.siprubber.com/about-us confirms SIP is part of Santo Rubber Group, established 2014 in Tangerang.
 - https://www.siprubber.com/rubber-product-service supports the industrial range shown in its company panel.
-- https://www.industrikaret.com/e/ supports sales@industrikaret.com and group history.
+- https://www.industrikaret.com/e/ documents the historical sales@industrikaret.com contact and group history. The current website's central inquiry address is info@santorubber.com.
 - https://bit.ly/PT-SOL could not be resolved by the retrieval tool. Kept only as the user-supplied company website link; content sourced from the attached PT SOL profile.
 
 Images are extracted from supplied group and SOL profiles; no generated or stock factories/products.
