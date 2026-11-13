@@ -69,7 +69,7 @@ function renderCompany(key='srf') {
  const c=companies[key];
  $$('.company-list button').forEach(b=>{let active=b.dataset.company===key;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;b.querySelector('b').textContent=active?'−':'+';});
  $('#company-panel').setAttribute('aria-labelledby','company-'+key);
- $('#company-panel').innerHTML=`<div class="company-abbr">${c.abbr}</div><h3>${c.name}</h3><p>${tr(c.description)}</p>${pills(c.tags.map(tr))}<a class="text-link dark" href="${c.link}" ${c.filter?'data-group-filter="'+c.filter+'"':'target="_blank" rel="noopener"'}>${tr(c.label)}</a>`;
+ $('#company-panel').innerHTML=`<img class="company-panel-logo" src="/assets/logos/${key}.webp" alt="${c.name} logo" width="184" height="96"><h3>${c.name}</h3><p>${tr(c.description)}</p>${pills(c.tags.map(tr))}<a class="text-link dark" href="${c.link}" ${c.filter?'data-group-filter="'+c.filter+'"':'target="_blank" rel="noopener"'}>${tr(c.label)}</a>`;
 }
 function renderFacility(index=0) {
  const f=facilities[index];
@@ -116,7 +116,7 @@ $('#inquiry-form').addEventListener('submit',e=>{
   window.open(`https://wa.me/${target}?text=${encodeURIComponent(preparedMessage)}`,'_blank','noopener,noreferrer');
   $('#inquiry-status').textContent=msg.whatsapp;$('#email-fallback').hidden=true;
  }else{
-  const to=interest==='Footwear outsoles & foxing'?'semesta.olahlestari@gmail.com':interest==='SIP Rubber products'?'sales@siprubber.com':'sales@industrikaret.com';
+  const to='info@santorubber.com';
   window.location.href=`mailto:${to}?subject=${encodeURIComponent(msg.subject+tr(String(interest)))}&body=${encodeURIComponent(preparedMessage)}`;
   $('#inquiry-status').textContent=msg.email(to);$('#email-fallback').hidden=false;$('#prepared-inquiry').value=preparedMessage;
  }

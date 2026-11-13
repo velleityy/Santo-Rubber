@@ -70,11 +70,24 @@ for (const lang of languages) {
       await page.locator('.dialog-close').click();
       await expect(page.locator('#product-dialog')).not.toBeVisible();
 
+      for (const key of ['srf', 'baik', 'sol', 'sip']) {
+        const tabLogo = page.locator('#company-' + key + ' .company-tab-logo');
+        await expect(tabLogo).toHaveAttribute('src', '/assets/logos/' + key + '.webp');
+        await expect.poll(() => tabLogo.evaluate(img => img.complete ? img.naturalWidth : 0)).toBeGreaterThan(0);
+      }
       await page.locator('.company-list button').nth(1).click();
       await expect(page.locator('#company-panel')).toContainText('PT Basuki Aneka Inti Karet');
+      const companyLogo = page.locator('#company-panel .company-panel-logo');
+      await expect(companyLogo).toHaveAttribute('src', '/assets/logos/baik.webp');
+      await expect.poll(() => companyLogo.evaluate(img => img.complete ? img.naturalWidth : 0)).toBeGreaterThan(0);
       await page.locator('.facility-tabs button').nth(2).click();
       await expect(page.locator('#facility-panel')).toContainText(/pasar kemis/i);
 
+      // Every language must expose the new central contact address.
+      const centralEmail = page.locator('.contact-details a[href^="mailto:"]');
+      await expect(centralEmail).toHaveAttribute('href', 'mailto:info@santorubber.com');
+      await expect(centralEmail).toHaveText('info@santorubber.com');
+      // Product inquiry categories still route by interest/WhatsApp as before.
       await expect(page.locator('#inquiry-interest option').first()).toHaveText(lang.general);
       // Routing uses stable English values regardless of user-facing language.
       await page.locator('#inquiry-interest').selectOption('Footwear outsoles & foxing');
@@ -106,6 +119,22 @@ test('management-approved photos are committed before merging', async ({ request
     const response = await request.get('/assets/' + name);
     expect(response.status(), 'Missing management image: ' + name).toBe(200);
     expect(response.headers()['content-type'] || '').toMatch(/image\/webp|application\/octet-stream/);
+  }
+});
+
+test('official group-company logo files are served', async ({ request }) => {
+  for (const logo of ['srf', 'baik', 'sol', 'sip']) {
+    const response = await request.get('/assets/logos/' + logo + '.webp');
+    expect(response.status(), 'Missing logo for ' + logo).toBe(200);
+    expect(response.headers()['content-type'] || '').toMatch(/image\/webp|application\/octet-stream/);
+  }
+});
+
+test('inquiry email drafts always target the new central mailbox', async () => {
+  const application = fs.readFileSync(require('node:path').join(__dirname, '..', 'app.js'), 'utf8');
+  expect(application).toContain("const to='info@santorubber.com';");
+  for (const oldEmail of ['sales@industrikaret.com', 'sales@siprubber.com', 'semesta.olahlestari@gmail.com']) {
+    expect(application).not.toContain(oldEmail);
   }
 });
 
