@@ -82,3 +82,13 @@ html[lang="id"] .hero h1{font-size:clamp(2.8rem,5.1vw,5.6rem)}
  .language-switcher select{max-width:60px}
  .hero-copy{padding-left:18px;padding-right:18px}
 }
+
+/* Management photography — consistent cropping and approachable corporate presentation */
+.hero-visual>img{object-position:center 42%}
+.product-image{background:#f0f3f6}
+.product-image img{object-position:center;object-fit:cover}
+.product-gallery{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:10px 10px 0;background:#fff}
+.product-gallery img{width:100%;height:100px;object-fit:cover;border-radius:5px;border:1px solid var(--line)}
+.product-gallery + .dialog-body{padding-top:26px}
+@media(max-width:800px){.hero-visual>img{object-position:center 40%}.product-gallery img{height:90px}}
+@media(max-width:540px){.product-gallery{gap:5px;padding:6px 6px 0}.product-gallery img{height:68px}}
