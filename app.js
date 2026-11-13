@@ -155,7 +155,7 @@ $('#inquiry-form').addEventListener('submit',async e=>{
  const controller=new AbortController();
  const timeout=setTimeout(()=>controller.abort(),15000);
  try{
-  const response=await fetch('https://formsubmit.co/ajax/'+encodeURIComponent(to),{
+  const response=await fetch('https://formsubmit.co/ajax/info@santorubber.com',{
    method:'POST',
    headers:{'Content-Type':'application/json','Accept':'application/json'},
    body:JSON.stringify(payload),
