@@ -127,3 +127,75 @@ html[lang="id"] .hero h1{font-size:clamp(2.8rem,5.1vw,5.6rem)}
   .company-list button{gap:8px}
   .company-list button>div{font-size:.89rem}
 }
+
+
+/* Image quality protection — restrict raster assets to their real useful resolutions. */
+/* Logo frames use background images so the global img { width:100% } rule cannot stretch them. */
+.company-list button>.company-tab-logo{
+  --tab-logo-width:82px;--tab-logo-height:56px;
+  box-sizing:border-box;display:block;flex:0 0 var(--tab-logo-width)!important;
+  width:var(--tab-logo-width)!important;min-width:var(--tab-logo-width);
+  max-width:var(--tab-logo-width);height:var(--tab-logo-height)!important;
+  min-height:var(--tab-logo-height);background-size:contain;background-repeat:no-repeat;
+  background-position:center center;background-color:#fff;border:1px solid #e6ebf0;
+  border-radius:8px;padding:0;object-fit:initial;
+}
+.company-panel .company-panel-logo{
+  box-sizing:border-box;display:block;flex:none;
+  width:min(176px,100%)!important;height:90px!important;max-width:100%;
+  background-size:contain;background-position:left center;background-repeat:no-repeat;
+  background-color:#fff;border:1px solid var(--line);border-radius:9px;padding:0;
+}
+.product-image.native-photo-frame{
+  display:flex;align-items:center;justify-content:center;
+  background:#eef3f7;
+}
+.product-image .native-photo-recycling{
+  position:static;display:block;width:min(100%,283px)!important;max-width:283px;
+  height:auto!important;max-height:178px;object-fit:contain;flex:none;
+  transform:none!important;margin:auto;
+}
+.product:hover .product-image .native-photo-recycling{transform:none!important}
+#dialog-content>.dialog-image.native-photo-recycling{
+  display:block;width:min(100%,283px)!important;max-width:283px;
+  height:auto!important;max-height:178px;object-fit:contain;
+  margin:18px auto;border-radius:6px;
+}
+.circular-photo img.native-photo-tiles{
+  display:block;width:min(100%,225px)!important;max-width:225px;
+  height:auto!important;max-height:153px;object-fit:contain;
+  margin:30px auto 0;mix-blend-mode:multiply;
+}
+.facility-panel .facility-photo-frame{
+  box-sizing:border-box;display:flex;align-items:center;justify-content:center;
+  min-width:0;width:100%;height:310px;overflow:hidden;
+  background:#edf2f7;border-radius:var(--radius);
+}
+.facility-panel .facility-photo-frame img.facility-photo-original{
+  position:static;display:block;width:auto!important;height:auto!important;
+  max-width:100%;max-height:100%;object-fit:contain;margin:auto;
+}
+.facility-panel .facility-photo-frame img.facility-photo-large{
+  display:block;width:100%!important;height:100%!important;max-width:none!important;
+  object-fit:cover;
+}
+@media(max-width:1100px){
+  .company-list button>.company-tab-logo{
+    --tab-logo-width:70px;--tab-logo-height:48px;
+  }
+}
+@media(max-width:800px){
+  .facility-panel .facility-photo-frame{height:270px}
+}
+@media(max-width:600px){
+  .company-list button>.company-tab-logo{
+    --tab-logo-width:56px;--tab-logo-height:44px;
+  }
+  .company-panel .company-panel-logo{height:80px!important;width:min(156px,100%)!important}
+}
+@media(max-width:360px){
+  .company-list button>.company-tab-logo{
+    --tab-logo-width:48px;--tab-logo-height:38px;
+  }
+  .facility-panel .facility-photo-frame{height:245px}
+}
