@@ -61,7 +61,7 @@ const $$ = (s) => [...document.querySelectorAll(s)];
 const pills = (items) => '<div class="pill-row">'+items.map(x=>'<span>'+x+'</span>').join('')+'</div>';
 function renderProducts(filter='all') {
  const list=products.filter(p=>filter==='all'||p.categories.includes(filter));
- $('#product-grid').innerHTML=list.map(p=>`<button class="product" data-open-product="${p.id}" aria-label="${tr('Explore capability')}: ${tr(p.name)}"><div class="product-image">${productImageHTML(p)}<span class="product-num">0${products.indexOf(p)+1}</span></div><div class="product-copy"><h3>${tr(p.name)}</h3><p>${tr(p.summary)}</p><span class="product-more">${tr('Explore capability')} <b aria-hidden="true">+</b></span></div></button>`).join('');
+ $('#product-grid').innerHTML=list.map(p=>`<button class="product" data-open-product="${p.id}" aria-label="${tr('Explore capability')}: ${tr(p.name)}"><div class="product-image">${productImageHTML(p, p.id==='recycled'?'native-photo-recycling':'')}<span class="product-num">0${products.indexOf(p)+1}</span></div><div class="product-copy"><h3>${tr(p.name)}</h3><p>${tr(p.summary)}</p><span class="product-more">${tr('Explore capability')} <b aria-hidden="true">+</b></span></div></button>`).join('');
  $$('.filters button').forEach(b=>{let active=b.dataset.filter===filter;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
  $('#product-count').textContent=msg.count(list.length,products.length);
 }
@@ -69,19 +69,19 @@ function renderCompany(key='srf') {
  const c=companies[key];
  $$('.company-list button').forEach(b=>{let active=b.dataset.company===key;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;b.querySelector('b').textContent=active?'−':'+';});
  $('#company-panel').setAttribute('aria-labelledby','company-'+key);
- $('#company-panel').innerHTML=`<img class="company-panel-logo" src="/assets/logos/${key}.webp" alt="${c.name} logo" width="184" height="96"><h3>${c.name}</h3><p>${tr(c.description)}</p>${pills(c.tags.map(tr))}<a class="text-link dark" href="${c.link}" ${c.filter?'data-group-filter="'+c.filter+'"':'target="_blank" rel="noopener"'}>${tr(c.label)}</a>`;
+ $('#company-panel').innerHTML=`<div class="company-panel-logo" role="img" aria-label="${c.name} logo" style="background-image:url(/assets/logos/${key}.webp)"></div><h3>${c.name}</h3><p>${tr(c.description)}</p>${pills(c.tags.map(tr))}<a class="text-link dark" href="${c.link}" ${c.filter?'data-group-filter="'+c.filter+'"':'target="_blank" rel="noopener"'}>${tr(c.label)}</a>`;
 }
 function renderFacility(index=0) {
  const f=facilities[index];
  $$('.facility-tabs button').forEach(b=>{let active=Number(b.dataset.facility)===index;b.setAttribute('aria-selected',String(active));b.tabIndex=active?0:-1;});
  $('#facility-panel').setAttribute('aria-labelledby','facility-'+index);
- $('#facility-panel').innerHTML=`<img src="/assets/${f.image}.webp" alt="${f.name} exterior" loading="lazy"><div><div class="eyebrow">${f.name.toUpperCase()} / ${f.location}</div><h3>${tr(f.title)}</h3><p>${tr(f.description)}</p>${pills(f.tags.map(tr))}</div>`;
+ $('#facility-panel').innerHTML=`<div class="facility-photo-frame"><img class="${f.image==='rajeg'?'facility-photo-large':'facility-photo-original'}" src="/assets/${f.image}.webp" alt="${f.name} production facility" loading="lazy" style="max-width:${({cengkareng1:395,cengkareng2:385,pasarkemis:415,rajeg:1280})[f.image]||1000}px"></div><div><div class="eyebrow">${f.name.toUpperCase()} / ${f.location}</div><h3>${tr(f.title)}</h3><p>${tr(f.description)}</p>${pills(f.tags.map(tr))}</div>`;
 }
 let dialogTrigger=null;
 function openProduct(id,trigger) {
  const p=products.find(p=>p.id===id);if(!p)return;
  dialogTrigger=trigger;
- $('#dialog-content').innerHTML=`${productImageHTML(p,'dialog-image',false)}${galleryPhotos(p).length>1?`<div class="product-gallery" aria-label="${tr('Products & applications')}">${galleryPhotos(p).slice(1,4).map(name=>`<img src="${photoPath(name)}" data-fallback-src="${imageFallback(p)}" loading="lazy" alt="${tr(p.name)} — ${name.replaceAll('-',' ')}">`).join('')}</div>`:''}<div class="dialog-body"><div class="eyebrow">${tr('SANTO RUBBER GROUP / CAPABILITIES')}</div><h2 id="dialog-title">${tr(p.name)}</h2><p>${tr(p.description)}</p><h3>${tr('Products & applications')}</h3>${pills(p.examples.map(tr))}<div class="actions"><button class="button" data-inquire="${p.id}">${tr('Discuss this product')}</button><a class="text-link dark" href="/assets/${p.id==='footwear'?'pt-sol-profile.pdf':'santo-rubber-group-profile.pdf'}" target="_blank" rel="noopener">${tr('View company profile')}</a></div></div>`;
+ $('#dialog-content').innerHTML=`${productImageHTML(p,p.id==='recycled'?'dialog-image native-photo-recycling':'dialog-image',false)}${galleryPhotos(p).length>1?`<div class="product-gallery" aria-label="${tr('Products & applications')}">${galleryPhotos(p).slice(1,4).map(name=>`<img src="${photoPath(name)}" data-fallback-src="${imageFallback(p)}" loading="lazy" alt="${tr(p.name)} — ${name.replaceAll('-',' ')}">`).join('')}</div>`:''}<div class="dialog-body"><div class="eyebrow">${tr('SANTO RUBBER GROUP / CAPABILITIES')}</div><h2 id="dialog-title">${tr(p.name)}</h2><p>${tr(p.description)}</p><h3>${tr('Products & applications')}</h3>${pills(p.examples.map(tr))}<div class="actions"><button class="button" data-inquire="${p.id}">${tr('Discuss this product')}</button><a class="text-link dark" href="/assets/${p.id==='footwear'?'pt-sol-profile.pdf':'santo-rubber-group-profile.pdf'}" target="_blank" rel="noopener">${tr('View company profile')}</a></div></div>`;
  $('#product-dialog').showModal();
 }
 function closeDialog(){ $('#product-dialog').close(); }
