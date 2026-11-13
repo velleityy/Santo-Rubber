@@ -75,6 +75,11 @@ for (const lang of languages) {
       await page.locator('.facility-tabs button').nth(2).click();
       await expect(page.locator('#facility-panel')).toContainText(/pasar kemis/i);
 
+      // Every language must expose the new central contact address.
+      const centralEmail = page.locator('.contact-details a[href^="mailto:"]');
+      await expect(centralEmail).toHaveAttribute('href', 'mailto:info@santorubber.com');
+      await expect(centralEmail).toHaveText('info@santorubber.com');
+      // Product inquiry categories still route by interest/WhatsApp as before.
       await expect(page.locator('#inquiry-interest option').first()).toHaveText(lang.general);
       // Routing uses stable English values regardless of user-facing language.
       await page.locator('#inquiry-interest').selectOption('Footwear outsoles & foxing');
