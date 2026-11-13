@@ -93,6 +93,22 @@ for (const lang of languages) {
   }
 }
 
+test('management-approved photos are committed before merging', async ({ request }) => {
+  // This test intentionally blocks merging if new photos have not been uploaded yet.
+  const required = [
+    'factory-production-floor.webp',
+    'automotive-rubber-components.webp',
+    'assorted-extruded-profiles.webp',
+    'footwear-rubber-outsoles.webp',
+    'marine-pneumatic-fenders-site.webp'
+  ];
+  for (const name of required) {
+    const response = await request.get('/assets/' + name);
+    expect(response.status(), 'Missing management image: ' + name).toBe(200);
+    expect(response.headers()['content-type'] || '').toMatch(/image\/webp|application\/octet-stream/);
+  }
+});
+
 test('language switcher preserves section when switching languages', async ({ page }) => {
   await page.goto('/#products');
   await page.locator('.language-switcher select').selectOption('id');
