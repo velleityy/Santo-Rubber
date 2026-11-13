@@ -61,7 +61,7 @@ const $$ = (s) => [...document.querySelectorAll(s)];
 const pills = (items) => '<div class="pill-row">'+items.map(x=>'<span>'+x+'</span>').join('')+'</div>';
 function renderProducts(filter='all') {
  const list=products.filter(p=>filter==='all'||p.categories.includes(filter));
- $('#product-grid').innerHTML=list.map(p=>`<button class="product" data-open-product="${p.id}" aria-label="${tr('Explore capability')}: ${tr(p.name)}"><div class="product-image">${productImageHTML(p, p.id==='recycled'?'native-photo-recycling':'')}<span class="product-num">0${products.indexOf(p)+1}</span></div><div class="product-copy"><h3>${tr(p.name)}</h3><p>${tr(p.summary)}</p><span class="product-more">${tr('Explore capability')} <b aria-hidden="true">+</b></span></div></button>`).join('');
+ $('#product-grid').innerHTML=list.map(p=>`<button class="product" data-open-product="${p.id}" aria-label="${tr('Explore capability')}: ${tr(p.name)}"><div class="product-image ${p.id==='recycled'?'native-photo-frame':''}">${productImageHTML(p, p.id==='recycled'?'native-photo-recycling':'')}<span class="product-num">0${products.indexOf(p)+1}</span></div><div class="product-copy"><h3>${tr(p.name)}</h3><p>${tr(p.summary)}</p><span class="product-more">${tr('Explore capability')} <b aria-hidden="true">+</b></span></div></button>`).join('');
  $$('.filters button').forEach(b=>{let active=b.dataset.filter===filter;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
  $('#product-count').textContent=msg.count(list.length,products.length);
 }
