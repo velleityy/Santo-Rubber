@@ -325,8 +325,7 @@ h1,h2,h3{font-weight:700;letter-spacing:-.035em}
 .button,.filters button{font-weight:600}
 html[lang="zh-Hans"] h1,
 html[lang="zh-Hans"] h2,
-html[lang="zh-Hans"] h3,
-html[lang="zh-Hans"] .wordmark:not(.latin-wordmark){
+html[lang="zh-Hans"] h3{
   letter-spacing:-.015em;
 }
 
