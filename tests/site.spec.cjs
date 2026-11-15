@@ -39,13 +39,37 @@ for (const lang of languages) {
           textField:radius('#inquiry-form input[name="name"]')
         };
       });
-      for (const key of ['heroCTA','filter','language','formSubmit','formWhatsApp']) {
+      for (const key of ['heroCTA','filter','formSubmit','formWhatsApp']) {
         expect(corners[key], key+' must be a fully rounded pill').toBe('999px');
       }
       expect(corners.productCard).toBe('16px');
       expect(corners.companyTab).toBe('12px');
       expect(corners.facilityTab).toBe('12px');
       expect(corners.textField).toBe('12px');
+      // Language picker should read as a compact utility dropdown, not a prominent CTA.
+      expect(corners.language).toBe('10px');
+      const typography = await page.evaluate(() => {
+        const dropdown = document.querySelector('.language-switcher select');
+        const rect = dropdown.getBoundingClientRect();
+        const styles = getComputedStyle(dropdown);
+        return {
+          width:rect.width,
+          height:rect.height,
+          appearance:styles.appearance,
+          font:styles.fontFamily,
+          backgroundImage:styles.backgroundImage,
+          bodyFont:getComputedStyle(document.body).fontFamily,
+          headingFont:getComputedStyle(document.querySelector('.hero h1')).fontFamily
+        };
+      });
+      expect(typography.width).toBe(size.viewport.width <= 360 ? 68 : size.viewport.width <= 600 ? 72 : 76);
+      expect(typography.height).toBe(size.viewport.width <= 600 ? 36 : 38);
+      expect(typography.appearance).toBe('none');
+      expect(typography.backgroundImage).toContain('data:image/svg+xml');
+      expect(typography.font).toContain('Inter');
+      expect(typography.bodyFont).toContain('Inter');
+      expect(typography.headingFont).toContain('Manrope');
+
 
 
       // Ensure no horizontal scrolling at narrow breakpoints, including long translations.
