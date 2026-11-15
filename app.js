@@ -181,5 +181,56 @@ $('#inquiry-form').addEventListener('submit',async e=>{
 $('#copy-inquiry').addEventListener('click',async()=>{
  try{await navigator.clipboard.writeText(preparedMessage);$('#inquiry-status').textContent=msg.copied;}catch{const t=$('#prepared-inquiry');t.hidden=false;t.focus();t.select();$('#inquiry-status').textContent=msg.manual;}
 });
+// PT SOL-inspired footwear client logo carousel. Native scroll supports touch and keyboard;
+// restrained automatic advancement pauses for interaction, offscreen sections and reduced motion.
+function initCollaborationsCarousel(){
+ const carousel=$('.logo-carousel');
+ const section=$('.clients');
+ const previous=$('.carousel-prev');
+ const next=$('.carousel-next');
+ if(!carousel||!section||!previous||!next)return;
+
+ const reduced=window.matchMedia('(prefers-reduced-motion: reduce)');
+ let visible=false;
+ let interacting=false;
+ let lastManualMove=0;
+
+ const step=()=>Math.min(720,Math.max(190,carousel.clientWidth*.8));
+ const move=(direction,manual=false)=>{
+  if(manual)lastManualMove=Date.now();
+  const max=Math.max(0,carousel.scrollWidth-carousel.clientWidth);
+  const position=carousel.scrollLeft;
+  // Loop only on reaching a physical end; don't duplicate logos in the accessibility tree.
+  if(direction>0 && position>=max-6){
+   carousel.scrollTo({left:0,behavior:'instant'});
+  }else if(direction<0 && position<=5){
+   carousel.scrollTo({left:max,behavior:reduced.matches?'auto':'smooth'});
+  }else{
+   carousel.scrollBy({left:direction*step(),behavior:reduced.matches?'auto':'smooth'});
+  }
+ };
+ previous.addEventListener('click',()=>move(-1,true));
+ next.addEventListener('click',()=>move(1,true));
+ section.addEventListener('pointerenter',()=>{interacting=true});
+ section.addEventListener('pointerleave',()=>{interacting=false});
+ section.addEventListener('focusin',()=>{interacting=true});
+ section.addEventListener('focusout',event=>{
+  if(!event.relatedTarget||!section.contains(event.relatedTarget))interacting=false;
+ });
+ section.addEventListener('touchstart',()=>{lastManualMove=Date.now()},{passive:true});
+ if('IntersectionObserver' in window){
+  const observer=new IntersectionObserver(entries=>{
+   visible=entries.some(entry=>entry.isIntersecting);
+  },{threshold:0.15});
+  observer.observe(carousel);
+ }else{
+  visible=true;
+ }
+ window.setInterval(()=>{
+  if(!visible||document.hidden||reduced.matches||interacting||Date.now()-lastManualMove<10000)return;
+  move(1);
+ },4200);
+}
+
 $('#year').textContent=new Date().getFullYear();
-renderProducts();renderCompany();renderFacility();
+renderProducts();renderCompany();renderFacility();initCollaborationsCarousel();

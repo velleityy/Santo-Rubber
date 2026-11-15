@@ -130,6 +130,24 @@ for (const lang of languages) {
       );
       expect(brokenImages, 'missing images on ' + lang.code + ' / ' + size.name).toEqual([]);
 
+      // The shared PT SOL collaboration section uses real logos, touch scrolling and
+      // previous/next controls on each locale and viewport.
+      await expect(page.locator('#collaborations .logo-card')).toHaveCount(18);
+      await expect(page.locator('#collaborations .logo-card img')).toHaveCount(18);
+      await expect(page.locator('#collaborations .logo-card').first().locator('img')).toHaveAttribute('src', '/assets/clients/aury.png');
+      const carousel = page.locator('#collaborations .logo-carousel');
+      await carousel.scrollIntoViewIfNeeded();
+      await carousel.evaluate(el => el.scrollTo({left:0,behavior:'instant'}));
+      await page.locator('#collaborations .carousel-next').click();
+      await expect.poll(() => carousel.evaluate(el => el.scrollLeft)).toBeGreaterThan(20);
+      await page.locator('#collaborations .carousel-prev').click();
+      await expect.poll(() => carousel.evaluate(el => el.scrollLeft)).toBeLessThan(20);
+      if (size.name === 'desktop' || size.name === 'phone') {
+        await page.locator('#collaborations').screenshot({
+          path: `tests/screenshots/${lang.code}-${size.name}-clients.png`,
+          animations:'disabled'
+        });
+      }
       await expect(page.locator('#product-grid .product')).toHaveCount(6);
       await expect(page.locator('#product-grid .product').first()).toContainText(lang.product);
       // Original profile photos are low-resolution; rendering must not enlarge them.
@@ -316,6 +334,25 @@ test('inquiry service errors show the email fallback without losing the draft', 
   await expect(page.locator('#email-fallback')).toBeVisible();
   await expect(page.locator('#email-draft')).toHaveAttribute('href', /mailto:info@santorubber.com/);
   await expect(page.locator('#prepared-inquiry')).toHaveValue(/Need a quote for rubber profiles/);
+});
+
+test('collaborations advance automatically while visible', async ({ page }) => {
+  await page.goto('/');
+  const carousel = page.locator('#collaborations .logo-carousel');
+  await carousel.scrollIntoViewIfNeeded();
+  await carousel.evaluate(el => el.scrollTo({left:0,behavior:'instant'}));
+  await page.waitForTimeout(5200);
+  expect(await carousel.evaluate(el => el.scrollLeft)).toBeGreaterThan(20);
+});
+
+test('collaborations stay still when reduced motion is requested', async ({ page }) => {
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.goto('/');
+  const carousel = page.locator('#collaborations .logo-carousel');
+  await carousel.scrollIntoViewIfNeeded();
+  await carousel.evaluate(el => el.scrollTo({left:0,behavior:'instant'}));
+  await page.waitForTimeout(4800);
+  expect(await carousel.evaluate(el => el.scrollLeft)).toBeLessThanOrEqual(5);
 });
 
 test('language switcher preserves section when switching languages', async ({ page }) => {
