@@ -69,6 +69,19 @@ for (const lang of languages) {
       expect(typography.font).toContain('Inter');
       expect(typography.bodyFont).toContain('Inter');
       expect(typography.headingFont).toContain('Manrope');
+      if (size.viewport.width <= 600) {
+        const headerAlignment = await page.evaluate(() => {
+          const nav = document.querySelector('header .nav').getBoundingClientRect();
+          const picker = document.querySelector('.language-switcher').getBoundingClientRect();
+          const menu = document.querySelector('.menu').getBoundingClientRect();
+          return {
+            rightGap: nav.right-menu.right,
+            controlsGap: menu.left-picker.right
+          };
+        });
+        expect(headerAlignment.rightGap, 'Mobile controls should align to the right edge').toBeLessThanOrEqual(3);
+        expect(headerAlignment.controlsGap, 'Mobile controls must not overlap').toBeGreaterThanOrEqual(0);
+      }
       // Capture the actual header before scrolling; full-page screenshots taken later
       // can omit sticky navigation at the top when Playwright has scrolled the page.
       fs.mkdirSync('tests/screenshots', { recursive: true });
