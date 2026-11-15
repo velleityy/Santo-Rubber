@@ -24,6 +24,29 @@ for (const lang of languages) {
       await expect(page.locator('html')).toHaveAttribute('lang', lang.code === 'zh' ? 'zh-Hans' : lang.code);
       await expect(page.locator('.hero h1')).toContainText(lang.hero);
       await expect(page.locator('.language-switcher select')).toHaveValue(lang.code);
+      // Consistent rounded action buttons across every language and screen size.
+      const corners = await page.evaluate(() => {
+        const radius = selector => getComputedStyle(document.querySelector(selector)).borderTopLeftRadius;
+        return {
+          heroCTA:radius('.hero .button'),
+          filter:radius('.filters button'),
+          language:radius('.language-switcher select'),
+          formSubmit:radius('#inquiry-form button[value="email"]'),
+          formWhatsApp:radius('#inquiry-form button[value="whatsapp"]'),
+          productCard:radius('#product-grid .product'),
+          companyTab:radius('.company-list button'),
+          facilityTab:radius('.facility-tabs button'),
+          textField:radius('#inquiry-form input[name="name"]')
+        };
+      });
+      for (const key of ['heroCTA','filter','language','formSubmit','formWhatsApp']) {
+        expect(corners[key], key+' must be a fully rounded pill').toBe('999px');
+      }
+      expect(corners.productCard).toBe('16px');
+      expect(corners.companyTab).toBe('12px');
+      expect(corners.facilityTab).toBe('12px');
+      expect(corners.textField).toBe('12px');
+
 
       // Ensure no horizontal scrolling at narrow breakpoints, including long translations.
       const metrics = await page.evaluate(() => ({
@@ -77,6 +100,13 @@ for (const lang of languages) {
       expect(tileDimensions.rendered).toBeLessThanOrEqual(tileDimensions.natural + 2);
       await page.locator('#product-grid .product').first().click();
       await expect(page.locator('#product-dialog')).toBeVisible();
+      const dialogCorners = await page.evaluate(() => ({
+        close:getComputedStyle(document.querySelector('.dialog-close')).borderRadius,
+        dialog:getComputedStyle(document.querySelector('#product-dialog')).borderTopLeftRadius
+      }));
+      expect(dialogCorners.close).toBe('50%');
+      expect(dialogCorners.dialog).toBe('16px');
+
       await expect(page.locator('#dialog-title')).toContainText(lang.product);
       await page.locator('.dialog-close').click();
       await expect(page.locator('#product-dialog')).not.toBeVisible();
