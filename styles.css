@@ -392,3 +392,102 @@ html[lang="zh-Hans"] h3{
   }
 }
 @media(prefers-reduced-motion:reduce){.language-switcher select{transition:none}}
+
+
+/* PT SOL-inspired footwear collaborations: native, swipeable logo carousel. */
+.clients{
+  background:var(--pale);
+  padding:70px 0 76px;
+  overflow:hidden;
+}
+.clients-heading{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:28px;
+  margin-bottom:29px;
+}
+.clients-heading-copy{min-width:0;max-width:660px}
+.clients-heading .eyebrow{margin-bottom:12px}
+.clients-heading h2{
+  font-family:'Manrope','Noto Sans SC','PingFang SC','Microsoft YaHei',sans-serif;
+  font-size:clamp(1.85rem,3vw,2.8rem);
+  line-height:1.13;
+  letter-spacing:-.04em;
+  margin:0 0 12px;
+}
+.clients-heading p{font-size:.95rem;margin:0;max-width:570px}
+.carousel-controls{display:flex;gap:10px;align-items:center;flex:0 0 auto}
+.carousel-controls button{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:44px;
+  height:44px;
+  padding:0;
+  border:1px solid #c7d3df;
+  border-radius:999px;
+  background:#fff;
+  color:var(--blue);
+  font-family:'Inter','Noto Sans SC',sans-serif;
+  font-size:1.4rem;
+  line-height:1;
+  transition:background-color .18s,border-color .18s,color .18s;
+}
+.carousel-controls button:hover{background:var(--blue);border-color:var(--blue);color:#fff}
+.carousel-controls button:focus-visible{outline:3px solid #568fec;outline-offset:3px}
+.logo-carousel{
+  max-width:100%;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scroll-behavior:smooth;
+  scroll-snap-type:x proximity;
+  overscroll-behavior-inline:contain;
+  scrollbar-width:none;
+  -webkit-overflow-scrolling:touch;
+}
+.logo-carousel::-webkit-scrollbar{display:none}
+.logo-track{display:flex;gap:16px;width:max-content;padding:4px 3px 12px}
+.logo-card{
+  box-sizing:border-box;
+  flex:0 0 218px;
+  width:218px;
+  height:128px;
+  display:grid;
+  place-items:center;
+  padding:24px;
+  border:1px solid #dbe4ed;
+  border-radius:14px;
+  background:white;
+  box-shadow:0 5px 16px rgba(19,43,73,.035);
+  scroll-snap-align:start;
+}
+.logo-card img{
+  display:block;
+  width:100%;
+  height:78px;
+  max-width:100%;
+  max-height:78px;
+  object-fit:contain;
+  object-position:center;
+}
+@media(max-width:800px){
+  .clients{padding:52px 0 56px}
+  .clients-heading{margin-bottom:24px}
+  .logo-card{flex-basis:188px;width:188px;height:116px;padding:20px}
+  .logo-card img{height:70px;max-height:70px}
+}
+@media(max-width:540px){
+  .clients-heading{gap:16px;align-items:flex-end}
+  .clients-heading h2{font-size:1.65rem}
+  .clients-heading p{font-size:.82rem}
+  .carousel-controls{gap:7px}
+  .carousel-controls button{width:38px;height:38px;font-size:1.2rem}
+  .logo-track{gap:12px}
+  .logo-card{flex-basis:155px;width:155px;height:102px;padding:16px}
+  .logo-card img{height:62px;max-height:62px}
+}
+@media(prefers-reduced-motion:reduce){
+  .logo-carousel{scroll-behavior:auto}
+  .carousel-controls button{transition:none}
+}
