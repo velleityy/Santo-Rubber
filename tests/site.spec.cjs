@@ -69,6 +69,14 @@ for (const lang of languages) {
       expect(typography.font).toContain('Inter');
       expect(typography.bodyFont).toContain('Inter');
       expect(typography.headingFont).toContain('Manrope');
+      // Capture the actual header before scrolling; full-page screenshots taken later
+      // can omit sticky navigation at the top when Playwright has scrolled the page.
+      fs.mkdirSync('tests/screenshots', { recursive: true });
+      await page.screenshot({
+        path: `tests/screenshots/${lang.code}-${size.name}-header.png`,
+        animations:'disabled'
+      });
+
 
 
 
