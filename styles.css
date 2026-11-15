@@ -281,7 +281,7 @@ dialog{border-radius:var(--interactive-card-radius);overflow:auto}
 .facility-tabs button:hover{background:#edf3fa}
 .facility-tabs button[aria-selected="true"]{background:#e7effb}
 .pill-row span,.material-tags span,.product-num{border-radius:var(--button-radius)}
-input,select,textarea{border-radius:var(--control-radius)}
+form input,form select,form textarea{border-radius:var(--control-radius)}
 .inquiry-fallback-actions .text-link{
   display:inline-flex;
   align-items:center;
