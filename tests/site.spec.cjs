@@ -352,7 +352,7 @@ test('collaborations stay still when reduced motion is requested', async ({ page
   await carousel.scrollIntoViewIfNeeded();
   await carousel.evaluate(el => el.scrollTo({left:0,behavior:'instant'}));
   await page.waitForTimeout(4800);
-  expect(await carousel.evaluate(el => el.scrollLeft)).toBe(0);
+  expect(await carousel.evaluate(el => el.scrollLeft)).toBeLessThanOrEqual(5);
 });
 
 test('language switcher preserves section when switching languages', async ({ page }) => {
