@@ -216,3 +216,94 @@ html[lang="id"] .hero h1{font-size:clamp(2.8rem,5.1vw,5.6rem)}
  .form-actions .button{width:100%;text-align:center}
  .inquiry-fallback-actions{gap:14px}
 }
+
+
+/* Shared shape system — maintain the same rounded controls in every locale and viewport.
+   Pills are reserved for actions / chips; content cards and form fields retain softer corners. */
+:root{
+  --button-radius:999px;
+  --control-radius:12px;
+  --interactive-card-radius:16px;
+}
+.button,
+.filters button,
+.language-switcher select{
+  border-radius:var(--button-radius);
+}
+.button{
+  padding-inline:clamp(18px,2vw,26px);
+  text-align:center;
+  white-space:normal;
+}
+.filters button{
+  min-height:42px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1.3;
+}
+.language-switcher select{
+  min-height:40px;
+  padding-left:13px;
+  padding-right:22px;
+}
+.menu,
+.dialog-close{
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.menu{
+  display:none;
+  flex:0 0 44px;
+  width:44px;
+  height:44px;
+  min-width:44px;
+  padding:0;
+  color:var(--navy);
+}
+.dialog-close{overflow:hidden;}
+.menu:hover,.dialog-close:hover{background:#e9f0fa}
+.product{border-radius:var(--interactive-card-radius)}
+dialog{border-radius:var(--interactive-card-radius);overflow:auto}
+.product-gallery img{border-radius:var(--control-radius)}
+.company-list button{
+  border-radius:var(--control-radius);
+  transition:background-color .18s ease,color .18s ease;
+}
+.company-list button:hover{background:#f2f6fc}
+.company-list button[aria-selected="true"]{background:#edf3fc}
+.facility-tabs button{
+  border-radius:var(--control-radius) var(--control-radius) 0 0;
+  transition:background-color .18s ease,color .18s ease;
+}
+.facility-tabs button:hover{background:#edf3fa}
+.facility-tabs button[aria-selected="true"]{background:#e7effb}
+.pill-row span,.material-tags span,.product-num{border-radius:var(--button-radius)}
+input,select,textarea{border-radius:var(--control-radius)}
+.inquiry-fallback-actions .text-link{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:40px;
+  padding:8px 16px;
+  text-align:center;
+  text-decoration:none;
+  border:1px solid #9ab0c8;
+  border-radius:var(--button-radius);
+  background:white;
+  transition:background-color .18s ease;
+}
+.inquiry-fallback-actions .text-link:hover{background:#edf3fb}
+@media(max-width:1050px){
+  .menu{display:flex}
+}
+@media(max-width:600px){
+  .button{min-height:44px}
+  .language-switcher select{min-height:38px}
+  .menu{flex-basis:42px;width:42px;height:42px;min-width:42px}
+}
+@media(prefers-reduced-motion:reduce){
+  .company-list button,.facility-tabs button,.inquiry-fallback-actions .text-link{transition:none}
+}
